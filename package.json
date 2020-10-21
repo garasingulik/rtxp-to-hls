@@ -1,7 +1,7 @@
 {
-  "name": "typescript-express-template",
+  "name": "rtxp-to-hls",
   "version": "0.0.1",
-  "description": "TypeScript and Express Project Template",
+  "description": "RTxP to HLS Realtime Stream Converter",
   "main": "build/src/server.js",
   "types": "build/src/server.d.ts",
   "files": [
@@ -19,7 +19,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/garasingulik/typescript-express-template.git"
+    "url": "git+https://github.com/garasingulik/rtxp-to-hls.git"
   },
   "keywords": [
     "typescript",
@@ -31,9 +31,9 @@
   "author": "Indra Gunawan <indra@garasingulik.com>",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/garasingulik/typescript-express-template/issues"
+    "url": "https://github.com/garasingulik/rtxp-to-hls/issues"
   },
-  "homepage": "https://github.com/garasingulik/typescript-express-template#readme",
+  "homepage": "https://github.com/garasingulik/rtxp-to-hls#readme",
   "dependencies": {
     "axios": "^0.20.0",
     "dotenv": "^8.2.0",
@@ -44,8 +44,6 @@
     "tswrap": "^1.0.4"
   },
   "devDependencies": {
-    "@types/axios": "^0.14.0",
-    "@types/dotenv": "^8.2.0",
     "@types/express": "^4.17.8",
     "@typescript-eslint/eslint-plugin": "^4.4.1",
     "@typescript-eslint/parser": "^4.4.1",

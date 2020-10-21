@@ -6,7 +6,9 @@ import staging from './staging'
 
 export interface Config {
   port: number,
-  secret: string
+  secret: string,
+  url: string,
+  ffmpeg: string
 }
 
 export const NODE_ENV = process.env.NODE_ENV || 'development'

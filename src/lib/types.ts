@@ -1,5 +1,6 @@
 export * from 'tswrap'
 
+import * as crypto from 'crypto'
 import { Either } from 'fp-ts/lib/Either'
 import * as iots from 'io-ts'
 
@@ -34,3 +35,17 @@ export const HelloRequest = iots.interface({
 })
 
 export type HelloRequestType = iots.TypeOf<typeof HelloRequest>
+
+export const StreamConvertRequest = iots.interface({
+  url!: iots.string
+})
+
+export type StreamConvertRequestType = iots.TypeOf<typeof StreamConvertRequest>
+
+export interface StreamConvertResponseType {
+  url: string
+}
+
+export const getStreamId = (url: string) => {
+  return crypto.createHash('md5').update(url).digest('hex')
+}

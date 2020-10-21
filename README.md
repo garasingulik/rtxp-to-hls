@@ -1,3 +1,3 @@
-# TypeScript and Express Project Template
+# RTxP to HLS Realtime Stream Converter
 
-This is the basic REST API microservice template project using TypeScript and Express JS. Feel free to use it as your base repository template, fork or make a pull request if you want to contribute to improve this template.
+This service will convert RTMP/RTSP stream into HLS stream that we can play directly using HTML 5 video element.

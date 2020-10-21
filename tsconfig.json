@@ -27,7 +27,8 @@
     "resolveJsonModule": true
   },
   "exclude": [
-    "build"
+    "build",
+    "public"
   ],
   "typeAcquisition": {
     "enable": true
