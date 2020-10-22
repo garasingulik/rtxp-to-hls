@@ -1,4 +1,5 @@
 import * as bodyParser from 'body-parser'
+import * as cors from 'cors'
 import * as express from 'express'
 
 import config from './config'
@@ -8,6 +9,7 @@ const app = express()
 
 // tslint:disable-next-line: deprecation
 app.use(bodyParser.json())
+app.use(cors())
 app.use('/static', express.static('public'))
 
 const start = async () => {

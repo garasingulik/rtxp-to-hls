@@ -36,6 +36,7 @@
   "homepage": "https://github.com/garasingulik/rtxp-to-hls#readme",
   "dependencies": {
     "axios": "^0.20.0",
+    "cors": "^2.8.5",
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
     "fp-ts": "^2.8.1",
@@ -44,6 +45,7 @@
     "tswrap": "^1.0.4"
   },
   "devDependencies": {
+    "@types/cors": "^2.8.8",
     "@types/express": "^4.17.8",
     "@typescript-eslint/eslint-plugin": "^4.5.0",
     "@typescript-eslint/parser": "^4.4.1",
