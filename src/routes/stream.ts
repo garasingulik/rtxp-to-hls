@@ -10,7 +10,7 @@ import { authenticationMiddleware } from './authorization'
 
 export const StreamRoutes = {
   register: (app: express.Application) => {
-    app.post('/stream/convert', authenticationMiddleware, (req, res) => {
+    app.post('/stream/convert', authenticationMiddleware, async (req, res) => {
       const data = T.parseData<T.StreamConvertRequestType>(req.body, T.StreamConvertRequest)
 
       if (T.isParseError(data)) {
@@ -27,10 +27,12 @@ export const StreamRoutes = {
       const streamId = T.getStreamId(sourceUrl)
       const outputPath = `./public/${streamId}`
 
-      if (!fs.existsSync(outputPath)) {
-        fs.mkdirSync(outputPath)
+      if (fs.existsSync(outputPath)) {
+        fs.rmdirSync(outputPath, { recursive: true })
       }
-      convertStream(data.url, outputPath)
+      fs.mkdirSync(outputPath)
+
+      await T.wrapPromise(convertStream(data.url, outputPath))
 
       return res.json({ url: `${config.url}/static/${streamId}/stream.m3u8` })
     })
