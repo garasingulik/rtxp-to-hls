@@ -24,10 +24,6 @@ export const convertStream = async (streamUrl: string, outputPath: string): Prom
       }
     }
 
-    // GOP = segment length * frame rate
-    // previously we set this value fixed to 30
-    // our segment is 4s so the value will be 4 * fps
-
     // https://slhck.info/video/2017/03/01/rate-control.html
     // In H.264 and H.265, CRF ranges from 0 to 51 (like the QP).
     // 23 is a good default for x264, and 28 is the default for x265.
@@ -44,8 +40,6 @@ export const convertStream = async (streamUrl: string, outputPath: string): Prom
       '21',
       '-preset',
       'ultrafast',
-      '-g',
-      '25',
       '-sc_threshold',
       '0',
       '-c:a',
@@ -57,15 +51,23 @@ export const convertStream = async (streamUrl: string, outputPath: string): Prom
       '-f',
       'hls',
       '-hls_time',
-      '4',
+      '2',
       '-hls_delete_threshold',
       '1',
       '-hls_flags',
       'delete_segments',
       '-hls_list_size',
-      '15',
-      `${outputPath}/stream.m3u8`
+      '30'
     ]
+
+    // GOP = segment length * frame rate
+    // our segment is 2s so the value will be 2 * fps
+    cmdParams.push('-g')
+    // assuming the fps is 24
+    cmdParams.push('48')
+
+    // set the output path
+    cmdParams.push(`${outputPath}/stream.m3u8`)
 
     const ffmpegCommand = `${config.ffmpeg} ${cmdParams.join(' ')}`
     console.log(`FFMPEG Command: ${ffmpegCommand}`)
@@ -84,7 +86,7 @@ export const convertStream = async (streamUrl: string, outputPath: string): Prom
         console.log('STDERR:', data)
 
         // wait a moment until the stream ready
-        if (data.includes('stream3.ts')) {
+        if (data.includes('stream4.ts')) {
           return resolve()
         }
       })
