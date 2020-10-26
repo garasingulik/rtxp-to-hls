@@ -1,6 +1,6 @@
 import * as childProcess from 'child_process'
 
-import config from '../../config'
+import config from '../config'
 
 interface RunningPid {
   streamId: string,
