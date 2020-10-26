@@ -34,6 +34,8 @@ export const convertStream = async (streamUrl: string, outputPath: string): Prom
     const cmdParams: string[] = [
       '-i',
       streamUrl,
+      '-rtsp_flags',
+      'prefer_tcp',
       '-c:v',
       'libx264',
       '-crf',
@@ -86,7 +88,7 @@ export const convertStream = async (streamUrl: string, outputPath: string): Prom
         console.log('STDERR:', data)
 
         // wait a moment until the stream ready
-        if (data.includes('stream4.ts')) {
+        if (data.includes('stream2.ts')) {
           return resolve()
         }
       })
