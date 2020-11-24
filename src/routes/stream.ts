@@ -33,7 +33,6 @@ export const StreamRoutes = {
       fs.mkdirSync(outputPath)
 
       await T.wrapPromise(convertStream(data.url, outputPath))
-
       return res.json({ url: `${config.url}/static/${streamId}/stream.m3u8` })
     })
   }

@@ -9,7 +9,7 @@ interface RunningPid {
 const runningStreams: RunningPid[] = []
 
 export const convertStream = async (streamUrl: string, outputPath: string): Promise<void> => {
-  return new Promise((resolve) => {
+  return new Promise((resolve, reject) => {
     // skip same stream id if it's still running
     const streamId = outputPath.split('/')[2]
 
@@ -20,7 +20,7 @@ export const convertStream = async (streamUrl: string, outputPath: string): Prom
         releaseStreamId(streamId)
       } else {
         console.log(`Cannot kill pid: ${runningStream.pid}`)
-        return
+        return reject()
       }
     }
 
@@ -86,11 +86,6 @@ export const convertStream = async (streamUrl: string, outputPath: string): Prom
       spawnedCmd.stderr.setEncoding("utf8")
       spawnedCmd.stderr.on('data', (data) => {
         console.log('STDERR:', data)
-
-        // wait a moment until the stream ready
-        if (data.includes('stream2.ts')) {
-          return resolve()
-        }
       })
 
       spawnedCmd.on('close', (code) => {
@@ -104,9 +99,15 @@ export const convertStream = async (streamUrl: string, outputPath: string): Prom
         releaseStreamId(streamId)
         console.log(`Stream is ended: ${code}`);
       })
+
+      // wait a sec before returning
+      setTimeout(() => {
+        return resolve()
+      }, 1000)
     } catch (error) {
       releaseStreamId(streamId)
       console.error(error)
+      return reject()
     }
   })
 }
