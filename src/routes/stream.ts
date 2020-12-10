@@ -26,7 +26,7 @@ export const StreamRoutes = {
       const streamId = T.getStreamId(sourceUrl)
       const outputPath = await T.wrapPromise(convertStream(data.url, streamId))
 
-      return res.json({ url: `${config.url}/${outputPath}` })
+      return res.json({ url: `${config.url}/static/${outputPath}` })
     })
   }
 }
