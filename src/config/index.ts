@@ -8,7 +8,8 @@ export interface Config {
   port: number,
   secret: string,
   url: string,
-  ffmpeg: string
+  ffmpeg: string,
+  uniqueStream: boolean
 }
 
 export const NODE_ENV = process.env.NODE_ENV || 'development'

@@ -1,3 +1,4 @@
+import * as fs from 'fs'
 import * as childProcess from 'child_process'
 
 import config from '../config'
@@ -8,19 +9,19 @@ interface RunningPid {
 }
 const runningStreams: RunningPid[] = []
 
-export const convertStream = async (streamUrl: string, outputPath: string): Promise<void> => {
+export const convertStream = async (streamUrl: string, streamId: string): Promise<void> => {
   return new Promise((resolve, reject) => {
-    // skip same stream id if it's still running
-    const streamId = outputPath.split('/')[2]
 
-    const runningStream = runningStreams.find(s => s.streamId === streamId)
-    if (runningStream) {
-      console.log(`Killing previous process PID: ${runningStream}`)
-      if (process.kill(runningStream.pid)) {
-        releaseStreamId(streamId)
-      } else {
-        console.log(`Cannot kill pid: ${runningStream.pid}`)
-        return reject()
+    if (config.uniqueStream) {
+      const runningStream = runningStreams.find(s => s.streamId === streamId)
+      if (runningStream) {
+        console.log(`Killing previous process PID: ${runningStream}`)
+        if (process.kill(runningStream.pid)) {
+          releaseStreamId(streamId)
+        } else {
+          console.log(`Cannot kill pid: ${runningStream.pid}`)
+          return resolve()
+        }
       }
     }
 
@@ -69,6 +70,7 @@ export const convertStream = async (streamUrl: string, outputPath: string): Prom
     cmdParams.push('48')
 
     // set the output path
+    const outputPath = getOutputPath(streamId)
     cmdParams.push(`${outputPath}/stream.m3u8`)
 
     const ffmpegCommand = `${config.ffmpeg} ${cmdParams.join(' ')}`
@@ -112,17 +114,32 @@ export const convertStream = async (streamUrl: string, outputPath: string): Prom
   })
 }
 
+const getOutputPath = (streamId: string) => {
+  return `./public/${streamId}`
+}
+
 const lockStreamId = (streamId: string, pid: number) => {
   console.log(`Locking stream: ${streamId}`)
-  runningStreams.push({
-    streamId,
-    pid
-  })
+
+  // setup output path
+  const outputPath = getOutputPath(streamId)
+  if (!fs.existsSync(outputPath)) {
+    fs.mkdirSync(outputPath)
+  }
+
+  if (config.uniqueStream) {
+    runningStreams.push({
+      streamId,
+      pid
+    })
+  }
 }
 
 const releaseStreamId = (streamId: string) => {
   console.log(`Releasing stream: ${streamId}`)
-  // remove from array
-  const removeIndex = runningStreams.findIndex(s => s.streamId === streamId)
-  runningStreams.splice(removeIndex, 1)
+  if (config.uniqueStream) {
+    // remove from array
+    const removeIndex = runningStreams.findIndex(s => s.streamId === streamId)
+    runningStreams.splice(removeIndex, 1)
+  }
 }

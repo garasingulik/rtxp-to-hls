@@ -1,5 +1,5 @@
 # build environment
-FROM node:12.19.0-buster as build
+FROM node:12.20.0-buster as build
 WORKDIR /app
 
 ARG FFMPEG_VERSION=4.3.1
@@ -10,19 +10,23 @@ RUN curl -o - -L https://bit.ly/ffmpeg-ci | tar -Jxf - -C /usr/bin --strip-compo
 ENV PATH /app/node_modules/.bin:$PATH
 
 COPY package.json ./
+COPY package-lock.json ./
+
 RUN npm install
 
 COPY . ./
 RUN npm run build
 
 # production environment
-FROM node:12.19.0-buster-slim
+FROM node:12.20.0-buster-slim
 WORKDIR /app
 
 ENV PATH /app/node_modules/.bin:$PATH
 ENV NODE_ENV production
 
 COPY package.json ./
+COPY package-lock.json ./
+
 RUN npm install --production
 
 COPY ./public ./public
@@ -35,7 +39,9 @@ RUN chmod +x /usr/bin/ffmpeg && chmod +x /usr/bin/ffprobe
 
 VOLUME [ "/app/public" ]
 
-ENV API_SECRET='' STREAM_API_URL=''
+ENV API_SECRET='' \
+    STREAM_API_URL='' \
+    UNIQUE_STREAM=''
 
 EXPOSE 80
 CMD ["node", "/app/build/src/server.js"]

@@ -1,4 +1,3 @@
-import * as fs from 'fs'
 import * as express from 'express'
 import * as iotsReporters from 'io-ts-reporters'
 
@@ -25,14 +24,8 @@ export const StreamRoutes = {
       }
 
       const streamId = T.getStreamId(sourceUrl)
-      const outputPath = `./public/${streamId}`
+      await T.wrapPromise(convertStream(data.url, streamId))
 
-      if (fs.existsSync(outputPath)) {
-        fs.rmdirSync(outputPath, { recursive: true })
-      }
-      fs.mkdirSync(outputPath)
-
-      await T.wrapPromise(convertStream(data.url, outputPath))
       return res.json({ url: `${config.url}/static/${streamId}/stream.m3u8` })
     })
   }
