@@ -24,9 +24,9 @@ export const StreamRoutes = {
       }
 
       const streamId = T.getStreamId(sourceUrl)
-      await T.wrapPromise(convertStream(data.url, streamId))
+      const outputPath = await T.wrapPromise(convertStream(data.url, streamId))
 
-      return res.json({ url: `${config.url}/static/${streamId}/stream.m3u8` })
+      return res.json({ url: `${config.url}/${outputPath}` })
     })
   }
 }

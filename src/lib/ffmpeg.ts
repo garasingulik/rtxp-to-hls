@@ -1,5 +1,6 @@
 import * as fs from 'fs'
 import * as childProcess from 'child_process'
+import * as moment from 'moment'
 
 import config from '../config'
 
@@ -9,7 +10,7 @@ interface RunningPid {
 }
 const runningStreams: RunningPid[] = []
 
-export const convertStream = async (streamUrl: string, streamId: string): Promise<void> => {
+export const convertStream = async (streamUrl: string, streamId: string): Promise<string> => {
   return new Promise((resolve, reject) => {
 
     if (config.uniqueStream) {
@@ -20,7 +21,7 @@ export const convertStream = async (streamUrl: string, streamId: string): Promis
           releaseStreamId(streamId)
         } else {
           console.log(`Cannot kill pid: ${runningStream.pid}`)
-          return resolve()
+          return reject()
         }
       }
     }
@@ -71,7 +72,8 @@ export const convertStream = async (streamUrl: string, streamId: string): Promis
 
     // set the output path
     const outputPath = getOutputPath(streamId)
-    cmdParams.push(`${outputPath}/stream.m3u8`)
+    const fullPath = `${outputPath}/stream.m3u8`
+    cmdParams.push(fullPath)
 
     const ffmpegCommand = `${config.ffmpeg} ${cmdParams.join(' ')}`
     console.log(`FFMPEG Command: ${ffmpegCommand}`)
@@ -101,31 +103,36 @@ export const convertStream = async (streamUrl: string, streamId: string): Promis
         releaseStreamId(streamId)
         console.log(`Stream is ended: ${code}`);
       })
-
-      // wait a sec before returning
-      setTimeout(() => {
-        return resolve()
-      }, 1000)
     } catch (error) {
       releaseStreamId(streamId)
       console.error(error)
       return reject()
     }
+
+    // wait a sec before returning
+    setTimeout(() => {
+      return resolve(fullPath.replace('./public/', ''))
+    }, 1000)
   })
 }
 
 const getOutputPath = (streamId: string) => {
-  return `./public/${streamId}`
+  let outputPath = `./public/${streamId}`
+  if (!config.uniqueStream) {
+    const timestamp = moment().format('YYYYMMDDHHmmss')
+    outputPath = `./public/${streamId}/${timestamp}`
+  }
+
+  // setup output path
+  if (!fs.existsSync(outputPath)) {
+    fs.mkdirSync(outputPath, { recursive: true })
+  }
+
+  return outputPath
 }
 
 const lockStreamId = (streamId: string, pid: number) => {
   console.log(`Locking stream: ${streamId}`)
-
-  // setup output path
-  const outputPath = getOutputPath(streamId)
-  if (!fs.existsSync(outputPath)) {
-    fs.mkdirSync(outputPath)
-  }
 
   if (config.uniqueStream) {
     runningStreams.push({
