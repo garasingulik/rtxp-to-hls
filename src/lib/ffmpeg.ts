@@ -1,7 +1,6 @@
 /* eslint-disable prefer-promise-reject-errors */
 import * as fs from 'fs'
 import * as childProcess from 'child_process'
-import * as moment from 'moment'
 
 import config from '../config'
 
@@ -29,17 +28,13 @@ export const stopStream = async (streamId: string): Promise<boolean> => {
 
 export const convertStream = async (streamUrl: string, streamId: string): Promise<string> => {
   return new Promise((resolve, reject) => {
-    if (config.uniqueStream) {
-      const runningStream = runningStreams.find(s => s.streamId === streamId)
-      if (runningStream) {
-        console.log(`Killing previous process PID: ${runningStream}`)
-        if (process.kill(runningStream.pid)) {
-          releaseStreamId(streamId)
-        } else {
-          console.log(`Cannot kill pid: ${runningStream.pid}`)
-          return reject()
-        }
-      }
+    // construct output path
+    const outputPath = getOutputPath(streamId)
+    const fullPath = `${outputPath}/stream.m3u8`
+
+    const runningStream = runningStreams.find(s => s.streamId === streamId)
+    if (runningStream) {
+      return resolve(fullPath.replace('./public/', ''))
     }
 
     // https://slhck.info/video/2017/03/01/rate-control.html
@@ -85,10 +80,7 @@ export const convertStream = async (streamUrl: string, streamId: string): Promis
     cmdParams.push('-g')
     // assuming the fps is 24
     cmdParams.push('48')
-
     // set the output path
-    const outputPath = getOutputPath(streamId)
-    const fullPath = `${outputPath}/stream.m3u8`
     cmdParams.push(fullPath)
 
     const ffmpegCommand = `${config.ffmpeg} ${cmdParams.join(' ')}`
@@ -112,6 +104,11 @@ export const convertStream = async (streamUrl: string, streamId: string): Promis
         releaseStreamId(streamId)
         if (code !== 0) {
           console.log(`Process exited with code ${code}`)
+          if (code !== 255) {
+            setTimeout(() => {
+              convertStream(streamUrl, streamId)
+            }, 1000)
+          }
         }
       })
 
@@ -133,11 +130,7 @@ export const convertStream = async (streamUrl: string, streamId: string): Promis
 }
 
 const getOutputPath = (streamId: string) => {
-  let outputPath = `./public/${streamId}`
-  if (!config.uniqueStream) {
-    const timestamp = moment().format('YYYYMMDDHHmmss')
-    outputPath = `./public/${streamId}/${timestamp}`
-  }
+  const outputPath = `./public/${streamId}`
 
   // setup output path
   if (!fs.existsSync(outputPath)) {
@@ -150,19 +143,15 @@ const getOutputPath = (streamId: string) => {
 const lockStreamId = (streamId: string, pid: number) => {
   console.log(`Locking stream: ${streamId}`)
 
-  if (config.uniqueStream) {
-    runningStreams.push({
-      streamId,
-      pid
-    })
-  }
+  runningStreams.push({
+    streamId,
+    pid
+  })
 }
 
 const releaseStreamId = (streamId: string) => {
   console.log(`Releasing stream: ${streamId}`)
-  if (config.uniqueStream) {
-    // remove from array
-    const removeIndex = runningStreams.findIndex(s => s.streamId === streamId)
-    runningStreams.splice(removeIndex, 1)
-  }
+  // remove from array
+  const removeIndex = runningStreams.findIndex(s => s.streamId === streamId)
+  runningStreams.splice(removeIndex, 1)
 }
