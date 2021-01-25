@@ -1,3 +1,4 @@
+/* eslint-disable prefer-promise-reject-errors */
 import * as fs from 'fs'
 import * as childProcess from 'child_process'
 import * as moment from 'moment'
@@ -10,9 +11,24 @@ interface RunningPid {
 }
 const runningStreams: RunningPid[] = []
 
+export const stopStream = async (streamId: string): Promise<boolean> => {
+  return new Promise((resolve, reject) => {
+    const runningStream = runningStreams.find(s => s.streamId === streamId)
+    if (runningStream) {
+      console.log(`Killing previous process PID: ${runningStream}`)
+      if (process.kill(runningStream.pid)) {
+        releaseStreamId(streamId)
+        return resolve(true)
+      } else {
+        console.log(`Cannot kill pid: ${runningStream.pid}`)
+        return resolve(false)
+      }
+    }
+  })
+}
+
 export const convertStream = async (streamUrl: string, streamId: string): Promise<string> => {
   return new Promise((resolve, reject) => {
-
     if (config.uniqueStream) {
       const runningStream = runningStreams.find(s => s.streamId === streamId)
       if (runningStream) {
@@ -82,12 +98,12 @@ export const convertStream = async (streamUrl: string, streamId: string): Promis
       const spawnedCmd = childProcess.spawn(config.ffmpeg, cmdParams)
       lockStreamId(streamId, spawnedCmd.pid)
 
-      spawnedCmd.stdout.setEncoding("utf8")
+      spawnedCmd.stdout.setEncoding('utf8')
       spawnedCmd.stdout.on('data', (data) => {
         console.log('STDOUT:', data)
       })
 
-      spawnedCmd.stderr.setEncoding("utf8")
+      spawnedCmd.stderr.setEncoding('utf8')
       spawnedCmd.stderr.on('data', (data) => {
         console.log('STDERR:', data)
       })
@@ -95,13 +111,13 @@ export const convertStream = async (streamUrl: string, streamId: string): Promis
       spawnedCmd.on('close', (code) => {
         releaseStreamId(streamId)
         if (code !== 0) {
-          console.log(`Process exited with code ${code}`);
+          console.log(`Process exited with code ${code}`)
         }
       })
 
       spawnedCmd.on('end', (code) => {
         releaseStreamId(streamId)
-        console.log(`Stream is ended: ${code}`);
+        console.log(`Stream is ended: ${code}`)
       })
     } catch (error) {
       releaseStreamId(streamId)
