@@ -46,6 +46,20 @@ Example response:
 }
 ```
 
+### Stop Conversion
+
+```
+curl -L -X POST 'http://localhost:8006/stream/stop' -H 'Content-Type: application/json' -d '{ "url": "<rtmp://stream-url or rtsp://stream-url>" }'
+```
+
+Example response:
+
+```
+{
+    "success": "true"
+}
+```
+
 # Running in Production
 
 It's highly recommended to run this service inside docker container, and here is the minimum required syntax to run:
