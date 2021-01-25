@@ -40,8 +40,7 @@ RUN chmod +x /usr/bin/ffmpeg && chmod +x /usr/bin/ffprobe
 VOLUME [ "/app/public" ]
 
 ENV API_SECRET='' \
-    STREAM_API_URL='' \
-    UNIQUE_STREAM=''
+  STREAM_API_URL=''
 
 EXPOSE 80
 CMD ["node", "/app/build/src/server.js"]

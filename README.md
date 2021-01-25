@@ -18,7 +18,6 @@ Before we run the project, create one `.env` file in the root of the project and
 
 ```
 STREAM_API_URL=<http://localhost:3005 or use hosting url in production>
-UNIQUE_STREAM=<true | false>
 FFMPEG_PATH=<path to ffmpeg i.e. /usr/bin/ffmpeg>
 ```
 
