@@ -5,7 +5,7 @@ WORKDIR /app
 ARG FFMPEG_VERSION=4.3.1
 
 RUN apt-get update && apt-get install -y curl && rm -rf /var/lib/apt/lists/*
-RUN curl -o - -L https://bit.ly/ffmpeg-ci | tar -Jxf - -C /usr/bin --strip-components 1 ffmpeg-${FFMPEG_VERSION}-amd64-static/ffmpeg ffmpeg-${FFMPEG_VERSION}-amd64-static/ffprobe && chmod +x /usr/bin/ffmpeg && chmod +x /usr/bin/ffprobe
+RUN curl -o - -L https://ffmpeg.org/releases/ffmpeg-${FFMPEG_VERSION}.tar.bz2 | tar -Jxf - -C /usr/bin --strip-components 1 ffmpeg-${FFMPEG_VERSION}-amd64-static/ffmpeg ffmpeg-${FFMPEG_VERSION}-amd64-static/ffprobe && chmod +x /usr/bin/ffmpeg && chmod +x /usr/bin/ffprobe
 
 ENV PATH /app/node_modules/.bin:$PATH
 
